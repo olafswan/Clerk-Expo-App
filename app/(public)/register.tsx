@@ -1,3 +1,16 @@
+/**
+ * Register Component
+ *
+ * This component handles the user registration process.
+ * It collects the user's email address and password, and if successful,
+ * it sends a verification email. Once verified, the user can activate their session.
+ *
+ * Key Interactions:
+ * - Uses Clerk's `useSignUp` hook to create a new user and manage verification.
+ * - Displays loading indicators during the sign-up and verification processes.
+ * - Handles both the registration and email verification processes.
+ */
+
 import { Button, TextInput, View, StyleSheet } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
 import Spinner from "react-native-loading-spinner-overlay";
@@ -7,16 +20,16 @@ import { Stack } from "expo-router";
 const Register = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
 
-  const [emailAddress, setEmailAddress] = useState("");
-  const [password, setPassword] = useState("");
-  const [pendingVerification, setPendingVerification] = useState(false);
-  const [code, setCode] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [emailAddress, setEmailAddress] = useState(""); // User's email input
+  const [password, setPassword] = useState(""); // User's password input
+  const [pendingVerification, setPendingVerification] = useState(false); // State to track verification
+  const [code, setCode] = useState(""); // Code input for email verification
+  const [loading, setLoading] = useState(false); // Loading state for UI
 
   // Create the user and send the verification email
   const onSignUpPress = async () => {
     if (!isLoaded) {
-      return;
+      return; // Ensure sign-up is ready before proceeding
     }
     setLoading(true);
 
@@ -27,13 +40,13 @@ const Register = () => {
         password,
       });
 
-      // Send verification Email
+      // Send verification email
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
 
-      // change the UI to verify the email address
+      // Change the UI to verify the email address
       setPendingVerification(true);
     } catch (err: any) {
-      alert(err.errors[0].message);
+      alert(err.errors[0].message); // Display error message if sign-up fails
     } finally {
       setLoading(false);
     }
@@ -42,7 +55,7 @@ const Register = () => {
   // Verify the email address
   const onPressVerify = async () => {
     if (!isLoaded) {
-      return;
+      return; // Ensure sign-up is ready before proceeding
     }
     setLoading(true);
 
@@ -51,9 +64,10 @@ const Register = () => {
         code,
       });
 
+      // Activate the user's session after successful verification
       await setActive({ session: completeSignUp.createdSessionId });
     } catch (err: any) {
-      alert(err.errors[0].message);
+      alert(err.errors[0].message); // Display error message if verification fails
     } finally {
       setLoading(false);
     }

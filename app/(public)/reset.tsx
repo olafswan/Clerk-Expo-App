@@ -1,25 +1,37 @@
+/**
+ * Password Reset Component
+ *
+ * This component manages the password reset process.
+ * It allows users to request a password reset and to reset their password using a code.
+ *
+ * Key Interactions:
+ * - Utilizes Clerk's `useSignIn` hook for password reset functionalities.
+ * - Manages user input for email, password, and reset code.
+ * - Displays the appropriate UI depending on whether the user is in the request or reset stage.
+ */
+
 import { View, StyleSheet, TextInput, Button } from "react-native";
 import React, { useState } from "react";
 import { Stack } from "expo-router";
 import { useSignIn } from "@clerk/clerk-expo";
 
 const PwReset = () => {
-  const [emailAddress, setEmailAddress] = useState("");
-  const [password, setPassword] = useState("");
-  const [code, setCode] = useState("");
-  const [successfulCreation, setSuccessfulCreation] = useState(false);
-  const { signIn, setActive } = useSignIn();
+  const [emailAddress, setEmailAddress] = useState(""); // User's email input
+  const [password, setPassword] = useState(""); // User's new password input
+  const [code, setCode] = useState(""); // Code input for password reset
+  const [successfulCreation, setSuccessfulCreation] = useState(false); // State to track success of request
+  const { signIn, setActive } = useSignIn(); // Clerk's signIn hook
 
-  // Request a passowrd reset code by email
+  // Request a password reset code by email
   const onRequestReset = async () => {
     try {
       await signIn.create({
         strategy: "reset_password_email_code",
         identifier: emailAddress,
       });
-      setSuccessfulCreation(true);
+      setSuccessfulCreation(true); // Update state to indicate reset code has been sent
     } catch (err: any) {
-      alert(err.errors[0].message);
+      alert(err.errors[0].message); // Display error message if request fails
     }
   };
 
@@ -37,7 +49,7 @@ const PwReset = () => {
       // Set the user session active, which will log in the user automatically
       await setActive({ session: result.createdSessionId });
     } catch (err: any) {
-      alert(err.errors[0].message);
+      alert(err.errors[0].message); // Display error message if reset fails
     }
   };
 
